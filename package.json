@@ -1,0 +1,19 @@
+{
+  "name": "homebridge-synchrotron",
+  "version": "1.0.0",
+  "main": "/build/index.js",
+  "repository": "https://github.com/toto04/synchrotron.git",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "postinstall": "tsc"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/config": "^0.0.36",
+    "@types/node": "^14.11.2",
+    "config": "^3.3.2",
+    "homebridge": "^1.1.6",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
+}
