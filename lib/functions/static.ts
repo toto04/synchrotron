@@ -1,11 +1,13 @@
-import { Color, Layer, Pixel } from 'lib/util'
+import { Color, Layer, PixelIndex, StripSet } from '../util'
 
-export default class Static extends Layer {
+export class StaticColorLayer extends Layer {
     static types = { colore: "color" }
-    constructor(color: Color, pixels: Pixel[]) {
-        super('static', { color }, pixels)
-        this.shine = () => {
-            this.pixels.forEach(pixel => pixel.add(color))
-        }
+    constructor(color: Color, pixels: PixelIndex[], stripSet: StripSet) {
+        super({
+            type: 'static',
+            options: { color },
+            pixelIndexes: pixels
+        }, stripSet)
+        this.shine = (_instant, prevPixel) => prevPixel.add(color)
     }
 }
