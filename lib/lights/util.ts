@@ -73,8 +73,8 @@ export class Layer {
 
     compute = (instant: number) => {
         for (const pixelIndex of this.pixelIndexes) {
-            let pixel = this.stripSet[pixelIndex[0]][pixelIndex[1]]
-            pixel = this.shine(instant, Pixel.clone(pixel), pixelIndex, this.stripSet)
+            const pixel = this.stripSet[pixelIndex[0]][pixelIndex[1]]
+            this.stripSet[pixelIndex[0]][pixelIndex[1]] = this.shine(instant, Pixel.clone(pixel), pixelIndex, this.stripSet)
         }
     }
 

@@ -1,10 +1,10 @@
 {
     "Lights": [
         {
-            "name": "Tommaso",
+            "name": "superFunLight",
             "strips": [
-                54,
-                38
+                38,
+                54
             ]
         }
     ]

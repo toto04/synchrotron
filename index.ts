@@ -1,8 +1,5 @@
-import config from 'config'
-import { LightConfig } from 'lib/util'
-import { Light } from 'lib/light'
+import { configureLights } from './lib/init'
 
-if (require.main === module) {
-    let lights = config.get<LightConfig[]>('Lights')
-    console.log(lights)
-}
+configureLights().then((lights) => {
+    lights[0].start()
+})

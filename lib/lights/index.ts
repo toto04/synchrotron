@@ -1,9 +1,11 @@
-import { Layer, LightConfig, Pixel, StripSet } from './util'
+import { Layer, LightConfig, Pixel, StripSet, LayerConfig } from './util'
 import { StaticColorLayer } from './functions'
 import { EventEmitter } from 'events';
+export * from './util'
 
 export declare interface Light {
     on(event: 'advance', listener: () => void): this
+    on(event: 'newLayer', listener: () => void): this
 }
 
 export class Light extends EventEmitter {
@@ -12,6 +14,7 @@ export class Light extends EventEmitter {
     name: string
     layers: Layer[] = []
     pixels: StripSet = []
+    ip?: string
     constructor(config: LightConfig) {
         super()
         this.name = config.name
@@ -23,16 +26,7 @@ export class Light extends EventEmitter {
             this.pixels.push(strip)
         }
 
-        for (let layerConfig of config.layers) {
-            switch (layerConfig.type) {
-                case 'static':
-                    this.layers.push(new StaticColorLayer(layerConfig.options.color, layerConfig.pixelIndexes, this.pixels))
-                    break
-                default:
-                    // if this happens ima kms
-                    this.layers.push(new Layer(layerConfig, this.pixels))
-            }
-        }
+        this.addLayer(...config.layers)
     }
 
     toBuffer() {
@@ -49,9 +43,23 @@ export class Light extends EventEmitter {
         this.emit('advance')
     }
 
-    start = (frequency: number) => {
-        let gap = 1000 / frequency
+    start = (frequency: number = 100) => {
+        let gap = Math.floor(1000 / frequency)
         this.interval = setInterval(() => this.advance(), gap)
     }
     stop = () => this.interval ?? clearInterval(this.interval)
+
+    addLayer = (...layerConfigs: LayerConfig[]) => {
+        for (const layerConfig of layerConfigs) {
+            switch (layerConfig.type) {
+                case 'static':
+                    this.layers.push(new StaticColorLayer(layerConfig.options.color, layerConfig.pixelIndexes, this.pixels))
+                    break
+                default:
+                    // if this happens ima kms
+                    this.layers.push(new Layer(layerConfig, this.pixels))
+            }
+        }
+        this.emit('newLayer')
+    }
 }
