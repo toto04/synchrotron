@@ -1,17 +1,20 @@
-import { Layer, LightConfig, Pixel, StripSet, LayerConfig } from './util'
+import { Layer, LightConfig, Pixel, StripSet, LayerConfig, ProfileConfig } from './util'
 import { StaticColorLayer } from './functions'
 import { EventEmitter } from 'events';
 export * from './util'
 
 export declare interface Light {
-    on(event: 'advance', listener: () => void): this
-    on(event: 'newLayer', listener: () => void): this
+    on(event: 'advance', listener: (buffer: Buffer) => void): this
+    on(event: 'layerChange', listener: () => void): this
+    on(event: 'profileChange', listener: (profileName: string) => void): this
 }
 
 export class Light extends EventEmitter {
     time: number = 0;
     interval?: NodeJS.Timeout
     name: string
+    profile?: ProfileConfig
+    switchedOn: boolean = true
     layers: Layer[] = []
     pixels: StripSet = []
     ip?: string
@@ -25,27 +28,41 @@ export class Light extends EventEmitter {
             for (let i = 0; i < stripLength; i++) strip.push(Pixel.off())
             this.pixels.push(strip)
         }
+    }
 
-        this.addLayer(...config.layers)
+    setProfile = (newProfile: ProfileConfig) => {
+        this.profile = newProfile
+        this.layers = []
+        this.addLayer(...newProfile.layers)
+        this.emit('profileChange', newProfile.name)
     }
 
     toBuffer() {
+        if (!this.switchedOn) return Buffer.alloc(this.pixels.reduce((total, cur) => total + cur.length * 3, 0))
         let bufs: Buffer[] = []
         for (const strip of this.pixels) bufs.push(Buffer.concat(strip.map(p => p.toBuffer())))
         return Buffer.concat(bufs)
     }
 
-    advance = () => {
+    switch(state: boolean | 'on' | 'off') {
+        let on = (state === true || state === 'on')
+        this.switchedOn = on
+        if (!on) this.emit('advance', this.toBuffer())
+    }
+
+    private advance = () => {
         for (let layer of this.layers) {
             layer.compute(this.time)
         }
         this.time++
-        this.emit('advance')
+        this.emit('advance', this.toBuffer())
     }
 
     start = (frequency: number = 100) => {
         let gap = Math.floor(1000 / frequency)
-        this.interval = setInterval(() => this.advance(), gap)
+        this.interval = setInterval(() => {
+            if (this.switchedOn) this.advance()
+        }, gap)
     }
     stop = () => this.interval ?? clearInterval(this.interval)
 

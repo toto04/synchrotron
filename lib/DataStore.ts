@@ -1,8 +1,13 @@
-import LameStore from 'nedb'
+/**
+ * very very small module to convert essential methods of a NeDB datastore
+ * to async / Promises, because fuck callbacks
+ */
+
+import LameStore from 'nedb' // uses callbacks, lame
 import path from 'path'
 
 export class DataStore<T> {
-    lamestore: LameStore<T>
+    private lamestore: LameStore<T>
     constructor(filename: string) {
         this.lamestore = new LameStore<T>({
             filename: path.join(require.main?.path ?? __dirname, filename),
@@ -24,8 +29,8 @@ export class DataStore<T> {
         })
     })
 
-    insert = async (query: any): Promise<T> => new Promise((res, rej) => {
-        this.lamestore.insert(query, (err, doc) => {
+    insert = async (newDoc: T): Promise<T> => new Promise((res, rej) => {
+        this.lamestore.insert(newDoc, (err, doc) => {
             if (err) rej(err)
             else res(doc)
         })

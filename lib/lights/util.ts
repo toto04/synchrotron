@@ -47,10 +47,16 @@ export interface LayerConfig {
     pixelIndexes: PixelIndex[]
 }
 
+export interface ProfileConfig {
+    light: string
+    name: string
+    layers: LayerConfig[]
+}
+
 export interface LightConfig {
     name: string
     strips: number[]
-    layers: LayerConfig[]
+    profile?: string
 }
 
 /**
