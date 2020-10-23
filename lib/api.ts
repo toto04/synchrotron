@@ -17,20 +17,27 @@ export function initializeApi(port: number) {
 
 api.use(express.json())
 
-api.get('/lights', (req, res) => {
-    res.send(lights.map(light => ({
-        name: light.name,
-        switchedOn: light.switchedOn,
-        pixels: light.pixels.map(s => s.length)
+api.get('/lights/', async (req, res) => {
+    res.send(await Promise.all(lights.map(async light => {
+        const profiles = (await profileDB.find({ light: light.name })).map(p => p.name)
+        return {
+            name: light.name,
+            switchedOn: light.switchedOn,
+            selectedProfileIndex: light.profile ? profiles.indexOf(light.profile.name) : -1,
+            profiles,
+            pixels: light.pixels.map(s => s.length)
+        }
     })))
 })
 
-api.get('/profiles/:light', async (req, res) => {
-    let profiles = await profileDB.find({ light: req.params['light'] })
-    res.send(profiles)
+api.post('/lights/:light/profile', async (req, res) => {
+    let name: string = req.body['profile']
+    let profile = await profileDB.findOne({ name })
+    if (profile) lights.find(l => l.name == req.params['light'])?.setProfile(profile)
+    res.send()
 })
 
-api.post('/:light/switch', (req, res) => {
+api.post('/lights/:light/switch', (req, res) => {
     lights.find(l => l.name = req.params['light'])?.switch(req.body['on'])
     res.send()
 })

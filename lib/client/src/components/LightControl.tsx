@@ -1,14 +1,18 @@
 import React, { Component } from 'react'
 import socketio from 'socket.io-client'
-import Switch from 'react-switch'
+
+import poweron from '../logo/poweron.svg'
+import poweroff from '../logo/poweroff.svg'
 
 function buf2hex(buffer: ArrayBuffer) { // buffer is an ArrayBuffer
     return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
 }
 
 export interface LightState {
-    name: string,
-    switchedOn: boolean,
+    name: string
+    switchedOn: boolean
+    selectedProfileIndex: number
+    profiles: string[]
     pixels: number[]
 }
 
@@ -54,26 +58,48 @@ export default class LightControl extends Component<LightState, LightControlStat
     render = () => {
         return <div className="lightControl">
             <h1>{this.props.name}</h1>
-            <Switch
-                onChange={switchedOn => {
-                    this.setState({ switchedOn })
-                    console.log('Switching', switchedOn)
-                    fetch(`/${this.props.name}/switch`, {
+            <select
+                className="profileSelect"
+                name="profile"
+                ref={r => { if (r && this.props.selectedProfileIndex < 0) r.selectedIndex = 0 }}
+                value={this.props.selectedProfileIndex}
+                onChange={e => {
+                    fetch(`/lights/${this.props.name}/profile`, {
+                        method: 'post',
+                        headers: { 'Content-type': 'application/json' },
+                        body: JSON.stringify({ profile: e.target.value })
+                    })
+                }}
+            >
+                {this.props.selectedProfileIndex < 0 ? <option disabled>nessun profilo selezionato</option> : undefined}
+                {this.props.profiles.map(p => <option value={p} key={`profile${this.props.name}-${p}`}>{p}</option>)}
+            </select>
+            <img
+                onClick={async () => {
+                    let switchedOn = !this.state.switchedOn
+                    await fetch(`/lights/${this.props.name}/switch`, {
                         method: 'post',
                         headers: { 'Content-type': 'application/json' },
                         body: JSON.stringify({ on: switchedOn })
                     })
+                    this.setState({ switchedOn })
                 }}
-                checked={this.state.switchedOn}
+                style={{
+                    cursor: 'pointer',
+                    height: 150,
+                    width: 150,
+                    borderRadius: '50%',
+                    boxShadow: `0px 0px 25px 5px ${this.state.switchedOn ? '#3dd542' : '#fb393e'}`
+                }}
+                src={this.state.switchedOn ? poweron : poweroff}
                 className="switch"
-                height={100}
-                width={200}
+                alt={this.state.switchedOn ? 'on' : 'off'}
             />
             <div className="stripPreviewContainer">
                 {this.generatePixels().map((s, i) => <div className="stripPreview" key={`stripprev${i}`} >
                     {s}
                 </div>)}
             </div>
-        </div>
+        </div >
     }
 }

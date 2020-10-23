@@ -89,6 +89,25 @@ h1 {
             @include shadow(0px, 5px, 10px, 5px, #0002);
         }
 
+        .profileSelect {
+            margin-top: 12px;
+            padding: 8px 12px;
+            width: 80%;
+            // height: 24px;
+            text-align: center;
+            font-size: 1em;
+            color: #bbb;
+            background-color: $bgcolor;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='#bbb' d='M256 294.1L383 167c9.4-9.4 24.6-9.4 33.9 0s9.3 24.6 0 34L273 345c-9.1 9.1-23.7 9.3-33.1.7L95 201.1c-4.7-4.7-7-10.9-7-17s2.3-12.3 7-17c9.4-9.4 24.6-9.4 33.9 0l127.1 127z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 25px;
+            border: 0;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
         .switch {
             margin: auto;
         }
