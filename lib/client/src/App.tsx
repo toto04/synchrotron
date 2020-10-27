@@ -1,28 +1,18 @@
 import React, { Component } from 'react'
-import { } from 'react-router-dom'
-import logo from './logo/color.svg'
+import { createBrowserHistory } from 'history'
+import { Router, Route, Switch } from 'react-router-dom'
 
-import LightControl, { LightState } from './components/LightControl'
+import Edit from './routes/Edit'
+import Home from './routes/Home'
 
-interface AppState {
-    lights: LightState[]
-}
+let history = createBrowserHistory()
 
-export default class App extends Component<{}, AppState> {
-    state: AppState = { lights: [] }
-
-    componentDidMount = async () => {
-        let res = await fetch('/lights')
-        let lights = await res.json()
-        this.setState({ lights })
-    }
-    render = () => <div>
-        <header>
-            <img src={logo} alt="" />
-            <h1>synchrotron</h1>
-        </header>
-        <div className="lightControlContainer">
-            {this.state.lights.map(l => <LightControl {...l} key={l.name} />)}
-        </div>
-    </div>
+export default class App extends Component {
+    render = () => <Router history={history}>
+        <Switch>
+            <Route path="/edit/:lightname" component={Edit} />
+            <Route exact path='/' component={Home}>
+            </Route>
+        </Switch>
+    </Router>
 }

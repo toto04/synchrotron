@@ -37,6 +37,13 @@ api.post('/lights/:light/profile', async (req, res) => {
     res.send()
 })
 
+api.get('/lights/:light/profiles', async (req, res) => {
+    let light: string = req.params['light']
+    let profiles = await profileDB.find({ light })
+    let profile = profiles.find(p => p.name == lights.find(l => l.name == light)?.profile?.name)
+    res.send({ profiles, selectedProfileIndex: profile ? profiles.indexOf(profile) : -1 })
+})
+
 api.post('/lights/:light/switch', (req, res) => {
     lights.find(l => l.name = req.params['light'])?.switch(req.body['on'])
     res.send()

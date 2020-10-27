@@ -60,7 +60,6 @@ export default class LightControl extends Component<LightState, LightControlStat
             <h1>{this.props.name}</h1>
             <select
                 className="profileSelect"
-                name="profile"
                 ref={r => { if (r && this.props.selectedProfileIndex < 0) r.selectedIndex = 0 }}
                 value={this.props.selectedProfileIndex}
                 onChange={e => {
@@ -74,6 +73,7 @@ export default class LightControl extends Component<LightState, LightControlStat
                 {this.props.selectedProfileIndex < 0 ? <option disabled>nessun profilo selezionato</option> : undefined}
                 {this.props.profiles.map(p => <option value={p} key={`profile${this.props.name}-${p}`}>{p}</option>)}
             </select>
+            <a href={`/edit/${this.props.name}`}>modifica</a>
             <img
                 onClick={async () => {
                     let switchedOn = !this.state.switchedOn
@@ -89,7 +89,7 @@ export default class LightControl extends Component<LightState, LightControlStat
                     height: 150,
                     width: 150,
                     borderRadius: '50%',
-                    boxShadow: `0px 0px 25px 5px ${this.state.switchedOn ? '#3dd542' : '#fb393e'}`
+                    boxShadow: `0px 0px 25px 0px ${this.state.switchedOn ? '#3dd542aa' : '#fb393eaa'}`
                 }}
                 src={this.state.switchedOn ? poweron : poweroff}
                 className="switch"
