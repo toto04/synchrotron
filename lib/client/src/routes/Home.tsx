@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 
-import LightControl, { LightState } from '../components/LightControl'
+import LightControl from '../components/LightControl'
 import logo from '../logo/color.svg'
+import { LightState } from '../util'
 
 interface HomeState {
     lights: LightState[]

@@ -1,35 +1,41 @@
 import React, { Component } from 'react'
 import { RouteChildrenProps } from 'react-router-dom'
+import socketio from 'socket.io-client'
 
 import logo from '../logo/color.svg'
-export type PixelIndex = [number, number]
-export interface LayerConfig {
-    type: string,
-    options: any,
-    pixelIndexes: PixelIndex[]
-}
-export interface ProfileConfig {
-    light: string
-    name: string
-    layers: LayerConfig[]
-}
+import { buf2hex, ProfileConfig } from '../util'
+import { LightSimulation } from '../components/LightSimulation'
 
 type EditProps = RouteChildrenProps<{ lightname: string }>
 interface EditState {
     selectedProfileIndex: number
     profiles: ProfileConfig[]
     selectedLayer?: number
+    dimensions?: number[]
 }
 export default class Edit extends Component<EditProps, EditState> {
     state: EditState = { profiles: [], selectedProfileIndex: -1 }
+    socket = socketio()
+    clearSelection?: () => void
     componentDidMount = async () => {
-        // on component mount fetch all profiles of the light
-        let res = await fetch(`/lights/${this.props.match?.params.lightname}/profiles`)
-        let { profiles, selectedProfileIndex } = await res.json()
-        this.setState({ profiles, selectedProfileIndex })
+        let name = this.props.match?.params.lightname
+        if (name) this.socket.on(name, (data: ArrayBuffer) => {
+            const values = buf2hex(data)
+            let pixels = document.querySelectorAll<HTMLDivElement>('.pixelSimulation')
+            for (let i = 0; i < pixels.length; i++) {
+                let p = pixels[i]
+                if (p) p.style.backgroundColor = '#' + values.substr(i * 6, 6)
+            }
+        })
+        let res = await fetch(`/lights/${name}/profiles`)
+        let { profiles, selectedProfileIndex, dimensions } = await res.json()
+        this.setState({ profiles, selectedProfileIndex, dimensions })
     }
 
     render = () => {
+        let currentProfile = this.state.selectedProfileIndex < 0 ? undefined : this.state.profiles[this.state.selectedProfileIndex]
+        // let currentLayer = this.state.selectedLayer ? currentProfile?.layers[this.state.selectedLayer] : undefined
+
         return <div id="edit">
             <div style={{ gridArea: 'header' }}>
                 <div className="header" >
@@ -38,7 +44,7 @@ export default class Edit extends Component<EditProps, EditState> {
                     </a>
                     <h1>{this.props.match?.params.lightname}</h1>
                     <select
-                        ref={r => { if (r && this.state.selectedProfileIndex < 0) r.selectedIndex = 0 }}
+                        ref={r => { if (r && !currentProfile) r.selectedIndex = 0 }}
                         value={this.state.selectedProfileIndex}
                         onChange={e => {
                             this.setState({ selectedProfileIndex: e.target.selectedIndex, selectedLayer: undefined })
@@ -54,6 +60,7 @@ export default class Edit extends Component<EditProps, EditState> {
                 className="layers"
                 onClick={e => {
                     // unselects layers on a click on an empty part of the container
+                    if (this.clearSelection) this.clearSelection()
                     if (e.target === e.currentTarget) this.setState({ selectedLayer: undefined })
                 }}
             >
@@ -61,13 +68,24 @@ export default class Edit extends Component<EditProps, EditState> {
                     // for each layer build the layer selector
                     (layer, i) => <div
                         className={`layerSelector ${i === this.state.selectedLayer ? 'selected' : ''}`}
-                        onClick={() => this.setState({ selectedLayer: i })} // on click select the layer
+                        onClick={() => {
+                            if (this.state.selectedLayer === i) return
+                            if (this.clearSelection) this.clearSelection()
+                            this.setState({ selectedLayer: i })
+                        }}
                         key={`layer${i}`}
                     >
                         <h1 className="index">{i}</h1>
                         <h1 className="type">{layer.type}</h1>
                     </div>
                 )}
+            </div>
+            <div style={{ gridArea: 'simulation', overflow: 'auto' }}>
+                {this.state.dimensions ? <LightSimulation
+                    strips={this.state.dimensions}
+                    disabled={this.state.selectedLayer === undefined}
+                    clearSelection={c => this.clearSelection = c}
+                /> : undefined}
             </div>
         </div>
     }

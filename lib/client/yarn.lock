@@ -9189,6 +9189,11 @@ react-scripts@3.4.3:
   optionalDependencies:
     fsevents "2.1.2"
 
+react-selectable-fast@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/react-selectable-fast/-/react-selectable-fast-3.4.0.tgz#fb3e6490ebd3f91309b5a58ca17f629baab6e625"
+  integrity sha512-4DVrX6eTCLqt+GVtSNAEcL3S9ODUvtcPrzUL1ObjSL507D+i+HE4tCokSxUn4PqLtEsrWxXJU+CVC43XmwIVyw==
+
 react@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react/-/react-16.13.1.tgz#2e818822f1a9743122c063d6410d85c1e3afe48e"

@@ -147,7 +147,7 @@ select {
     display: grid;
     grid-template:
         "header header header" 80px
-        "layers preview options" 1fr / 300px 1fr auto;
+        "layers simulation options" 1fr / 300px 1fr auto;
     height: 100vh;
 
     .header {
@@ -192,12 +192,25 @@ select {
             line-height: 70px;
             transition: all 0.2s ease-in-out;
 
+            &::before {
+                content: "";
+                transition: all 0.2s ease-in-out;
+                opacity: 0;
+                left: 0;
+                height: 70px;
+                width: 40px;
+                background-position: center;
+                background-size: 25px 30px;
+                background-repeat: no-repeat;
+                position: absolute;
+                background-image: url("/arrow.svg");
+            }
+
             &.selected {
                 background-color: $bgcolor;
                 padding-left: 12px;
                 &::before {
-                    content: "";
-                    position: absolute;
+                    opacity: 1;
                 }
                 .type {
                     color: white;
@@ -212,6 +225,39 @@ select {
             .type {
                 color: #bbb;
             }
+        }
+    }
+
+    .lightSimulation {
+        padding: 80px;
+        box-sizing: border-box;
+        min-height: 100%;
+        width: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        float: left;
+
+        .stripSimulation {
+            display: flex;
+            
+            :first-child {
+                border-radius: 6px 0 0 6px;
+            }
+            :last-child {
+                border-radius: 0 6px 6px 0;
+            }
+        }
+
+        .pixelSimulation {
+            height: 40px;
+            width: 100%;
+            min-width: 15px;
+        }
+
+        .selectable-selectbox {
+            background-color: #78fdff88;
+            // border-radius: ;
         }
     }
 }
