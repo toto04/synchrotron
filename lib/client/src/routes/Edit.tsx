@@ -34,7 +34,7 @@ export default class Edit extends Component<EditProps, EditState> {
 
     render = () => {
         let currentProfile = this.state.selectedProfileIndex < 0 ? undefined : this.state.profiles[this.state.selectedProfileIndex]
-        // let currentLayer = this.state.selectedLayer ? currentProfile?.layers[this.state.selectedLayer] : undefined
+        let currentLayer = this.state.selectedLayer !== undefined ? currentProfile?.layers[this.state.selectedLayer] : undefined
 
         return <div id="edit">
             <div style={{ gridArea: 'header' }}>
@@ -86,6 +86,10 @@ export default class Edit extends Component<EditProps, EditState> {
                     disabled={this.state.selectedLayer === undefined}
                     clearSelection={c => this.clearSelection = c}
                 /> : undefined}
+            </div>
+            <div className="options">
+                {currentLayer ? undefined : <h2>select a layer to edit</h2>}
+                <button className="save">save</button>
             </div>
         </div>
     }
