@@ -91,6 +91,27 @@ select {
     appearance: none;
 }
 
+button {
+    margin-top: 18px;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 24px;
+    font-size: 0.9em;
+    background-color: #666;
+
+    &:hover {
+        @include shadow(0px, 5px, 10px, 5px, #0002);
+    }
+    &:active {
+        background-color: $bgcolor;
+    }
+}
+
+.doubleButton {
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .lightControlContainer {
     display: grid;
     padding: 40px;
@@ -256,6 +277,7 @@ select {
             height: 40px;
             width: 100%;
             min-width: 12px;
+            margin: 0.5px;
         }
 
         .selectable-selectbox {
@@ -271,26 +293,20 @@ select {
         align-items: center;
         background-color: $cardbg;
         min-width: 300px;
+        padding: 24px;
+        box-sizing: border-box;
 
-        h2 {
+        h2,
+        h3 {
             color: #666;
             text-align: center;
             margin: auto;
         }
 
         .save {
-            margin: 24px;
             margin-top: auto;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 24px;
             color: black;
-            font-size: .9em;
             background-color: #3dd542;
-
-            &:hover {
-                @include shadow(0px, 5px, 10px, 5px, #0002);
-            }
             &:active {
                 color: white;
             }

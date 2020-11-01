@@ -1,22 +1,37 @@
 import React, { Component } from 'react'
-import { SelectableGroup, createSelectable } from 'react-selectable-fast'
-import { LayerConfig } from '../util'
+import { SelectableGroup, createSelectable, TSelectableItemProps } from 'react-selectable-fast'
+import { PixelIndex } from '../util'
 
-const PixelSimulation = createSelectable<{
-    onDoubleClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
-}>(({ selectableRef, isSelected, isSelecting, onDoubleClick }) => <div
-    onDoubleClick={onDoubleClick}
-    className="pixelSimulation"
-    ref={selectableRef}
-    style={{ border: isSelected ? '1px solid #fffc' : isSelecting ? '1px solid #fff8' : '1px solid transparent' }}
-/>)
+interface PixelSimulationProps {
+    index: PixelIndex
+    onDoubleClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent> & { index: PixelIndex }) => void
+}
+
+class PixelSimulation extends Component<PixelSimulationProps & TSelectableItemProps> {
+    render = () => {
+        return <div
+            onDoubleClick={e => {
+                if (this.props.onDoubleClick) this.props.onDoubleClick(Object.assign({ index: this.props.index }, e))
+            }}
+            className="pixelSimulation"
+            ref={this.props.selectableRef}
+            style={{ border: this.props.isSelected ? '1px solid #fffc' : this.props.isSelecting ? '1px solid #fff8' : '1px solid transparent' }}
+        />
+    }
+}
+
+const PixelSimulationSelectable = createSelectable<PixelSimulationProps>(PixelSimulation)
 
 interface LightSimulationProps {
     strips: number[]
-    selectedLayer?: LayerConfig
     disabled?: boolean
+    defaultIndexes?: PixelIndex[]
     selectAll?: (selectAll: () => void) => void
     clearSelection?: (clearSelection: () => void) => void
+    resetSelection?: (resetSelection: () => void) => void
+    onSelection?: (pixels: PixelIndex[]) => void
+    onReset?: () => void
+    // selectFromLayer?: (selectFromLayer: (layer: LayerConfig) => void) => void
 }
 interface LightSimulationState {
     modifierIsPressed: boolean
@@ -24,10 +39,36 @@ interface LightSimulationState {
 export class LightSimulation extends Component<LightSimulationProps, LightSimulationState> {
     state: LightSimulationState = { modifierIsPressed: false }
     selectable?: SelectableGroup
+    lastIndexes?: PixelIndex[]
+    componentDidUpdate = () => {
+        if (this.lastIndexes !== this.props.defaultIndexes) this.resetSelection()
+        this.lastIndexes = this.props.defaultIndexes
+    }
     componentDidMount = () => {
         window.addEventListener('keydown', e => { if (e.ctrlKey || e.shiftKey) this.setState({ modifierIsPressed: true }) })
         window.addEventListener('keyup', e => { this.setState({ modifierIsPressed: false }) })
+        if (this.props.resetSelection) this.props.resetSelection(() => this.resetSelection())
     }
+
+    resetSelection = () => {
+        this.selectable?.clearSelection()
+        if (this.props.defaultIndexes) this.selectIndexes(this.props.defaultIndexes)
+        if (this.props.onReset) this.props.onReset()
+    }
+
+    selectIndexes: (indexes: PixelIndex[]) => void = indexes => {
+        if (!this.selectable) return
+        for (const item of this.selectable.registry.values()) {
+            let pixel = item as any as PixelSimulation // im sorry
+            for (const index of indexes)
+                if (pixel.props.index[0] === index[0] && pixel.props.index[1] === index[1]) {
+                    item.setState({ isSelected: true })
+                    this.selectable.selectedItems.add(item)
+                    break;
+                }
+        }
+    }
+
     render = () => <SelectableGroup
         ref={r => {
             this.selectable = r ?? undefined
@@ -39,34 +80,32 @@ export class LightSimulation extends Component<LightSimulationProps, LightSimula
         allowShiftClick
         disabled={this.props.disabled}
         className="lightSimulation"
+        onSelectionFinish={(e: PixelSimulation[]) => {
+            if (this.props.onSelection) this.props.onSelection(e.map(p => p.props.index))
+        }}
     >
-        {this.props.strips.map((s, j) => {
+        {this.props.strips.map((s, i) => {
             let pixels: JSX.Element[] = []
-            for (let i = 0; i < s; i++)
-                pixels.push(<PixelSimulation
+            for (let j = 0; j < s; j++)
+                pixels.push(<PixelSimulationSelectable
+                    index={[i, j]}
                     onDoubleClick={this.props.disabled ? undefined : e => {
-                        // THIS IS SOME SERIUS HACKY SHIT
-                        // THIS FUNCTION IS CURSED. DON'T EVENT TRY TO READ.
+                        // this is not exactly a good practice, but it works
                         if (!this.selectable) return
-                        let { top } = e.currentTarget.getBoundingClientRect()
-                        let { left } = document.querySelector('.pixelSimulation')?.getBoundingClientRect() ?? { left: 0 }
-                        let options = {
-                            top,
-                            left,
-                            height: e.currentTarget.offsetHeight,
-                            width: document?.querySelector('.lightSimulation')?.clientWidth ?? 0,
-                            offsetHeight: e.currentTarget.offsetHeight,
-                            offsetWidth: document?.querySelector('.lightSimulation')?.clientWidth ?? 0
+                        let indexes: PixelIndex[] = []
+                        for (const item of this.selectable.registry.values()) {
+                            let pixel = item as any as PixelSimulation
+                            if (pixel.props.index[0] === e.index[0] && !item.state.isSelected) {
+                                indexes.push(pixel.props.index)
+                                item.setState({ isSelected: true })
+                                this.selectable.selectedItems.add(item)
+                            }
                         }
-                        // that's the hacky af part, forgive me father for I have sinned
-                        this.selectable.selectItems(options)
-                        this.selectable.selectingItems.forEach(item => item.setState({ isSelected: true, isSelecting: false }))
-                        this.selectable.selectedItems = new Set([...this.selectable.selectedItems, ...this.selectable.selectingItems])
-                        this.selectable.selectingItems.clear()
+                        if (this.props.onSelection) this.props.onSelection(indexes)
                     }}
-                    key={"pixelsim" + i}
+                    key={"pixelsim" + j}
                 />)
-            return <div className="stripSimulation" key={"stripsim" + j}>{pixels}</div>
+            return <div className="stripSimulation" key={"stripsim" + i}>{pixels}</div>
         })}
     </SelectableGroup>
 }

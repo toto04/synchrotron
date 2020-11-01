@@ -5,8 +5,6 @@ import poweron from '../logo/poweron.svg'
 import poweroff from '../logo/poweroff.svg'
 import { buf2hex, LightState } from '../util'
 
-
-
 interface LightControlState {
     switchedOn: boolean
 }

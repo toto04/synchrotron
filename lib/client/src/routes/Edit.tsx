@@ -3,13 +3,14 @@ import { RouteChildrenProps } from 'react-router-dom'
 import socketio from 'socket.io-client'
 
 import logo from '../logo/color.svg'
-import { buf2hex, ProfileConfig } from '../util'
+import { buf2hex, LayerConfig, PixelIndex, ProfileConfig } from '../util'
 import { LightSimulation } from '../components/LightSimulation'
 
 type EditProps = RouteChildrenProps<{ lightname: string }>
 interface EditState {
     selectedProfileIndex: number
     profiles: ProfileConfig[]
+    changedIndexes?: PixelIndex[]
     selectedLayer?: number
     dimensions?: number[]
 }
@@ -17,6 +18,8 @@ export default class Edit extends Component<EditProps, EditState> {
     state: EditState = { profiles: [], selectedProfileIndex: -1 }
     socket = socketio()
     clearSelection?: () => void
+    resetSelection?: () => void
+    selectFromLayer?: (layer: LayerConfig) => void
     componentDidMount = async () => {
         let name = this.props.match?.params.lightname
         if (name) this.socket.on(name, (data: ArrayBuffer) => {
@@ -35,7 +38,6 @@ export default class Edit extends Component<EditProps, EditState> {
     render = () => {
         let currentProfile = this.state.selectedProfileIndex < 0 ? undefined : this.state.profiles[this.state.selectedProfileIndex]
         let currentLayer = this.state.selectedLayer !== undefined ? currentProfile?.layers[this.state.selectedLayer] : undefined
-
         return <div id="edit">
             <div style={{ gridArea: 'header' }}>
                 <div className="header" >
@@ -70,7 +72,7 @@ export default class Edit extends Component<EditProps, EditState> {
                         className={`layerSelector ${i === this.state.selectedLayer ? 'selected' : ''}`}
                         onClick={() => {
                             if (this.state.selectedLayer === i) return
-                            if (this.clearSelection) this.clearSelection()
+                            // if (this.selectFromLayer) this.selectFromLayer(this.state.profiles[this.state.selectedProfileIndex].layers[i])
                             this.setState({ selectedLayer: i })
                         }}
                         key={`layer${i}`}
@@ -84,11 +86,24 @@ export default class Edit extends Component<EditProps, EditState> {
                 {this.state.dimensions ? <LightSimulation
                     strips={this.state.dimensions}
                     disabled={this.state.selectedLayer === undefined}
-                    clearSelection={c => this.clearSelection = c}
+                    defaultIndexes={currentLayer?.pixelIndexes}
+                    resetSelection={r => this.resetSelection = r}
+                    onSelection={changedIndexes => this.setState({ changedIndexes })}
+                    onReset={() => this.setState({ changedIndexes: undefined })}
                 /> : undefined}
             </div>
             <div className="options">
-                {currentLayer ? undefined : <h2>select a layer to edit</h2>}
+                {currentLayer
+                    ? <div>
+                        {this.state.changedIndexes ? <div>
+                            <h3>You changed the pixels affected by this layer</h3>
+                            <div className="doubleButton">
+                                <button onClick={this.resetSelection} >reset</button>
+                                <button className="save">apply</button>
+                            </div>
+                        </div> : undefined}
+                    </div>
+                    : <h2>select a layer to edit</h2>}
                 <button className="save">save</button>
             </div>
         </div>
