@@ -5,11 +5,23 @@ export * from './util'
 
 export declare interface Light {
     on(event: 'advance', listener: (buffer: Buffer) => void): this
-    on(event: 'layerChange', listener: () => void): this
+    on(event: 'newLayer', listener: () => void): this
+    on(event: 'layerChange', listener: (index: number) => void): this
     on(event: 'profileChange', listener: (profileName: string) => void): this
 }
 
 export class Light extends EventEmitter {
+
+    static getLayer = (config: LayerConfig, pixelReference: StripSet): Layer => {
+        switch (config.type) {
+            case 'static':
+                return new StaticColorLayer(config.options.color, config.pixelIndexes, pixelReference)
+            default:
+                // if this happens ima kms
+                return new Layer(config, pixelReference)
+        }
+    }
+
     time: number = 0;
     interval?: NodeJS.Timeout
     name: string
@@ -51,6 +63,7 @@ export class Light extends EventEmitter {
     }
 
     private advance = () => {
+        for (let strip of this.pixels) for (let pixel of strip) pixel.off()
         for (let layer of this.layers) {
             layer.compute(this.time)
         }
@@ -68,15 +81,13 @@ export class Light extends EventEmitter {
 
     addLayer = (...layerConfigs: LayerConfig[]) => {
         for (const layerConfig of layerConfigs) {
-            switch (layerConfig.type) {
-                case 'static':
-                    this.layers.push(new StaticColorLayer(layerConfig.options.color, layerConfig.pixelIndexes, this.pixels))
-                    break
-                default:
-                    // if this happens ima kms
-                    this.layers.push(new Layer(layerConfig, this.pixels))
-            }
+            this.layers.push(Light.getLayer(layerConfig, this.pixels))
         }
         this.emit('newLayer')
+    }
+
+    modifyLayer = (index: number, config: LayerConfig) => {
+        this.layers.splice(index, 1, Light.getLayer(config, this.pixels))
+        this.emit('layerChange', index)
     }
 }

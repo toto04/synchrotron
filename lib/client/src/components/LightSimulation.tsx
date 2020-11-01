@@ -92,15 +92,16 @@ export class LightSimulation extends Component<LightSimulationProps, LightSimula
                     onDoubleClick={this.props.disabled ? undefined : e => {
                         // this is not exactly a good practice, but it works
                         if (!this.selectable) return
-                        let indexes: PixelIndex[] = []
                         for (const item of this.selectable.registry.values()) {
                             let pixel = item as any as PixelSimulation
-                            if (pixel.props.index[0] === e.index[0] && !item.state.isSelected) {
-                                indexes.push(pixel.props.index)
+                            if (pixel.props.index[0] === e.index[0]) {
                                 item.setState({ isSelected: true })
                                 this.selectable.selectedItems.add(item)
                             }
                         }
+                        let indexes: PixelIndex[] = []
+                        // Father forgive me for I have sinned
+                        for (const item of this.selectable.selectedItems) indexes.push((item as any).props.index)
                         if (this.props.onSelection) this.props.onSelection(indexes)
                     }}
                     key={"pixelsim" + j}

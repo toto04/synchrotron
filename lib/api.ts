@@ -45,6 +45,13 @@ api.get('/lights/:light/profiles', async (req, res) => {
     res.send({ profiles, selectedProfileIndex: profile ? profiles.indexOf(profile) : -1, dimensions: currLight?.pixels.map(s => s.length) })
 })
 
+api.post('/lights/:light/layers/:layer/indexes', async (req, res) => {
+    let light = lights.find(l => l.name == req.params['light'])
+    let layerIdx: number = parseInt(req.params['layer'])
+    if (light?.profile) light.modifyLayer(layerIdx, Object.assign({}, light.profile.layers[layerIdx], { pixelIndexes: req.body['indexes'] }))
+    res.send()
+})
+
 api.post('/lights/:light/switch', (req, res) => {
     lights.find(l => l.name = req.params['light'])?.switch(req.body['on'])
     res.send()

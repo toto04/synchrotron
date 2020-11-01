@@ -99,7 +99,18 @@ export default class Edit extends Component<EditProps, EditState> {
                             <h3>You changed the pixels affected by this layer</h3>
                             <div className="doubleButton">
                                 <button onClick={this.resetSelection} >reset</button>
-                                <button className="save">apply</button>
+                                <button className="save" onClick={async () => {
+                                    // Sets the new affected pixels
+                                    let name = this.props.match?.params.lightname
+                                    console.log(currentLayer!.pixelIndexes.length, this.state.changedIndexes!.length)
+                                    currentLayer!.pixelIndexes = this.state.changedIndexes!
+                                    await fetch(`/lights/${name}/layers/${this.state.selectedLayer}/indexes`, {
+                                        method: 'post',
+                                        headers: { 'Content-type': 'application/json' },
+                                        body: JSON.stringify({ indexes: this.state.changedIndexes })
+                                    })
+                                    this.setState({ changedIndexes: undefined })
+                                }}>apply</button>
                             </div>
                         </div> : undefined}
                     </div>
