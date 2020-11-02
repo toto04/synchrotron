@@ -5,6 +5,7 @@ import socketio from 'socket.io-client'
 import logo from '../logo/color.svg'
 import { buf2hex, LayerConfig, PixelIndex, ProfileConfig } from '../util'
 import { LightSimulation } from '../components/LightSimulation'
+import getOptionContainer from '../components/layerOptionsSelectors'
 
 type EditProps = RouteChildrenProps<{ lightname: string }>
 interface EditState {
@@ -15,14 +16,14 @@ interface EditState {
     dimensions?: number[]
 }
 export default class Edit extends Component<EditProps, EditState> {
+    name: string = this.props.match?.params.lightname ?? '_'
     state: EditState = { profiles: [], selectedProfileIndex: -1 }
     socket = socketio()
     clearSelection?: () => void
     resetSelection?: () => void
     selectFromLayer?: (layer: LayerConfig) => void
     componentDidMount = async () => {
-        let name = this.props.match?.params.lightname
-        if (name) this.socket.on(name, (data: ArrayBuffer) => {
+        if (this.name) this.socket.on(this.name, (data: ArrayBuffer) => {
             const values = buf2hex(data)
             let pixels = document.querySelectorAll<HTMLDivElement>('.pixelSimulation')
             for (let i = 0; i < pixels.length; i++) {
@@ -30,7 +31,7 @@ export default class Edit extends Component<EditProps, EditState> {
                 if (p) p.style.backgroundColor = '#' + values.substr(i * 6, 6)
             }
         })
-        let res = await fetch(`/lights/${name}/profiles`)
+        let res = await fetch(`/lights/${this.name}/profiles`)
         let { profiles, selectedProfileIndex, dimensions } = await res.json()
         this.setState({ profiles, selectedProfileIndex, dimensions })
     }
@@ -94,17 +95,18 @@ export default class Edit extends Component<EditProps, EditState> {
             </div>
             <div className="options">
                 {currentLayer
-                    ? <div>
-                        {this.state.changedIndexes ? <div>
-                            <h3>You changed the pixels affected by this layer</h3>
+                    ? <div style={{ width: '100%' }}>
+                        <div className="selectedIndexes">
+                            {this.state.changedIndexes
+                                ? <h3>{`You changed the pixels affected by this layer (${this.state.changedIndexes.length})`}</h3>
+                                : <h3>{`This layer affects ${currentLayer.pixelIndexes.length} pixels`} <br /> drag to select</h3>
+                            }
                             <div className="doubleButton">
-                                <button onClick={this.resetSelection} >reset</button>
-                                <button className="save" onClick={async () => {
+                                <button onClick={this.resetSelection} disabled={!this.state.changedIndexes}>reset</button>
+                                <button className="save" disabled={!this.state.changedIndexes} onClick={async () => {
                                     // Sets the new affected pixels
-                                    let name = this.props.match?.params.lightname
-                                    console.log(currentLayer!.pixelIndexes.length, this.state.changedIndexes!.length)
                                     currentLayer!.pixelIndexes = this.state.changedIndexes!
-                                    await fetch(`/lights/${name}/layers/${this.state.selectedLayer}/indexes`, {
+                                    await fetch(`/lights/${this.name}/layers/${this.state.selectedLayer}/indexes`, {
                                         method: 'post',
                                         headers: { 'Content-type': 'application/json' },
                                         body: JSON.stringify({ indexes: this.state.changedIndexes })
@@ -112,10 +114,17 @@ export default class Edit extends Component<EditProps, EditState> {
                                     this.setState({ changedIndexes: undefined })
                                 }}>apply</button>
                             </div>
-                        </div> : undefined}
+                        </div>
+                        {getOptionContainer(currentLayer.type, currentLayer.options, async options => {
+                            currentLayer!.options = options
+                            await fetch(`/lights/${this.name}/layers/${this.state.selectedLayer}/options`, {
+                                method: 'post',
+                                headers: { 'Content-type': 'application/json' },
+                                body: JSON.stringify({ options })
+                            })
+                        })}
                     </div>
                     : <h2>select a layer to edit</h2>}
-                <button className="save">save</button>
             </div>
         </div>
     }

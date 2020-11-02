@@ -52,6 +52,13 @@ api.post('/lights/:light/layers/:layer/indexes', async (req, res) => {
     res.send()
 })
 
+api.post('/lights/:light/layers/:layer/options', async (req, res) => {
+    let light = lights.find(l => l.name == req.params['light'])
+    let layerIdx: number = parseInt(req.params['layer'])
+    if (light?.profile) light.modifyLayer(layerIdx, Object.assign({}, light.profile.layers[layerIdx], { options: req.body['options'] }))
+    res.send()
+})
+
 api.post('/lights/:light/switch', (req, res) => {
     lights.find(l => l.name = req.params['light'])?.switch(req.body['on'])
     res.send()

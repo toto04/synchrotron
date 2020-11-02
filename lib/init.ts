@@ -35,9 +35,9 @@ export async function configureLights() {
             // when the profile is changed, the DB is updated
             lightDB.update({ name: light.name }, { $set: { profile: profileName } })
         })
-        light.on('layerChange', () => {
+        light.on('layerChange', layers => {
             profileDB.update({ name: light.profile?.name }, {
-                $set: { layers: light.layers.map(l => l.toObject()) }
+                $set: { layers }
             })
         })
         light.on('advance', buffer => {

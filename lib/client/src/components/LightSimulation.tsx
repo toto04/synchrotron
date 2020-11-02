@@ -31,7 +31,6 @@ interface LightSimulationProps {
     resetSelection?: (resetSelection: () => void) => void
     onSelection?: (pixels: PixelIndex[]) => void
     onReset?: () => void
-    // selectFromLayer?: (selectFromLayer: (layer: LayerConfig) => void) => void
 }
 interface LightSimulationState {
     modifierIsPressed: boolean

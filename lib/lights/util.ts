@@ -28,7 +28,7 @@ export class Pixel implements RGB {
     }
 
     add(color: Color) {
-        let alpha = color.a / 255
+        let alpha = color.a
         this.r = Math.round(this.r * (1 - alpha) + color.r * alpha)
         this.g = Math.round(this.g * (1 - alpha) + color.g * alpha)
         this.b = Math.round(this.b * (1 - alpha) + color.b * alpha)

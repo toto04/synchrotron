@@ -6,7 +6,7 @@ export * from './util'
 export declare interface Light {
     on(event: 'advance', listener: (buffer: Buffer) => void): this
     on(event: 'newLayer', listener: () => void): this
-    on(event: 'layerChange', listener: (index: number) => void): this
+    on(event: 'layerChange', listener: (newConfigs: LayerConfig[]) => void): this
     on(event: 'profileChange', listener: (profileName: string) => void): this
 }
 
@@ -88,6 +88,8 @@ export class Light extends EventEmitter {
 
     modifyLayer = (index: number, config: LayerConfig) => {
         this.layers.splice(index, 1, Light.getLayer(config, this.pixels))
-        this.emit('layerChange', index)
+        let newConfigs = this.layers.map(l => l.toObject())
+        this.profile!.layers = newConfigs
+        this.emit('layerChange', newConfigs)
     }
 }

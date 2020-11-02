@@ -45,8 +45,8 @@ void flash(uint8_t hue, uint8_t sat, uint8_t maxbri, unsigned int length)
 
 void setup()
 {
-    FastLED.addLeds<NEOPIXEL, STRIP1_PIN>(leds, 0, STRIP1_LENGTH);
-    FastLED.addLeds<NEOPIXEL, STRIP2_PIN>(leds, STRIP1_LENGTH, STRIP2_LENGTH);
+    FastLED.addLeds<NEOPIXEL, STRIP1_PIN>(leds, 0, STRIP1_LENGTH).setCorrection(TypicalLEDStrip);
+    FastLED.addLeds<NEOPIXEL, STRIP2_PIN>(leds, STRIP1_LENGTH, STRIP2_LENGTH).setCorrection(TypicalLEDStrip);
     // Add more strips here
     FastLED.clear();
 
