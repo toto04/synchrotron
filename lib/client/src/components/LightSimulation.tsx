@@ -35,7 +35,7 @@ interface LightSimulationProps {
 interface LightSimulationState {
     modifierIsPressed: boolean
 }
-export class LightSimulation extends Component<LightSimulationProps, LightSimulationState> {
+export default class LightSimulation extends Component<LightSimulationProps, LightSimulationState> {
     state: LightSimulationState = { modifierIsPressed: false }
     selectable?: SelectableGroup
     lastIndexes?: PixelIndex[]

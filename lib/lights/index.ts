@@ -5,7 +5,7 @@ export * from './util'
 
 export declare interface Light {
     on(event: 'advance', listener: (buffer: Buffer) => void): this
-    on(event: 'newLayer', listener: () => void): this
+    // on(event: 'newLayer', listener: () => void): this
     on(event: 'layerChange', listener: (newConfigs: LayerConfig[]) => void): this
     on(event: 'profileChange', listener: (profileName: string) => void): this
 }
@@ -45,7 +45,7 @@ export class Light extends EventEmitter {
     setProfile = (newProfile: ProfileConfig) => {
         this.profile = newProfile
         this.layers = []
-        this.addLayer(...newProfile.layers)
+        this.pushLayersInternal(...newProfile.layers)
         this.emit('profileChange', newProfile.name)
     }
 
@@ -79,11 +79,15 @@ export class Light extends EventEmitter {
     }
     stop = () => this.interval ?? clearInterval(this.interval)
 
-    addLayer = (...layerConfigs: LayerConfig[]) => {
+    private pushLayersInternal = (...layerConfigs: LayerConfig[]) => {
         for (const layerConfig of layerConfigs) {
             this.layers.push(Light.getLayer(layerConfig, this.pixels))
         }
-        this.emit('newLayer')
+    }
+
+    addLayer = (config: LayerConfig) => {
+        this.pushLayersInternal(config)
+        this.emit('layerChange', this.layers)
     }
 
     modifyLayer = (index: number, config: LayerConfig) => {

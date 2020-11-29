@@ -112,7 +112,6 @@ button {
     }
 
     &.save {
-        margin-top: auto;
         color: black;
         background-color: #3dd542;
         &:active {
@@ -264,6 +263,25 @@ button {
                 color: #bbb;
             }
         }
+
+        .newLayer {
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            img {
+                user-select: none;
+                transition: 0.2s all ease-in-out;
+                cursor: pointer;
+                border-radius: 50%;
+                background-color: $bgcolor;
+                width: 80px;
+                @include shadow(0px, 5px, 10px, 5px, #0001);
+                &:hover {
+                    background-color: #666;
+                    @include shadow(0px, 5px, 10px, 5px, #0002);
+                }
+            }
+        }
     }
 
     .lightSimulation {
@@ -342,6 +360,60 @@ button {
             .sketch-picker {
                 margin: 10px auto;
             }
+        }
+    }
+}
+
+.ReactModal__Overlay {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.newLayerModal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: $bgcolor;
+    border: 0;
+    border-radius: 0.5em;
+    width: 100%;
+    max-width: 500px;
+    max-height: 500px;
+    box-sizing: border-box;
+    padding: 24px;
+
+    h2 {
+        font-size: 2em;
+        margin-top: 0;
+    }
+
+    .newLayerSelectContainer {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 28px;
+        color: #bbb;
+        background-color: $cardbg;
+        padding: 24px;
+        border-radius: 0.5em;
+        @include shadow(0, 5px, 10px, 5px, #0001);
+        
+        select {
+            border-radius: 0.2em;
+            margin-left: 8px;
+            font-size: 32px;
+            color: white;
+            padding-right: 38px;
+        }
+
+        p {
+            text-align: center;
+            font-size: 0.8em;
+            color: #bbb;
+            margin: 12px;
         }
     }
 }

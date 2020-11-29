@@ -1,6 +1,6 @@
 import React from 'react'
 import { SketchPicker } from 'react-color'
-import Option from './Option'
+import Option, { OptionProps } from './Option'
 
 export interface Color {
     r: number
@@ -23,6 +23,11 @@ function hex(c: Color) {
 
 export default class ColorOption extends Option<Color, ColorOptionState> {
     state = { color: this.props.defaultValue }
+    componentDidUpdate = (prevProps: OptionProps<Color>) => {
+        if (this.props.defaultValue !== prevProps.defaultValue) {
+            this.setState({ color: this.props.defaultValue })
+        }
+    }
     render = () => {
         return <div>
             <span className="optionName">{this.props.name}</span>

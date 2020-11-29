@@ -3,7 +3,10 @@ import LayerOptionSelector from './LayerOptionSelector'
 
 import ColorOption, { Color } from '../options/Color'
 
-export default class StaticOptions extends LayerOptionSelector<{ color: Color }> {
+export interface StaticOptionsProps {
+    color: Color
+}
+export class StaticOptions extends LayerOptionSelector<StaticOptionsProps> {
     render = () => {
         return <div className="optionContainer">
             <ColorOption

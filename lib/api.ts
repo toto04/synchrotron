@@ -45,7 +45,16 @@ api.get('/lights/:light/profiles', async (req, res) => {
     res.send({ profiles, selectedProfileIndex: profile ? profiles.indexOf(profile) : -1, dimensions: currLight?.pixels.map(s => s.length) })
 })
 
+api.post('/lights/:light/layers', async (req, res) => {
+    // creates a new layer
+    let light = lights.find(l => l.name == req.params['light'])
+    let config = req.body['config']
+    light?.addLayer(config)
+    res.send()
+})
+
 api.post('/lights/:light/layers/:layer/indexes', async (req, res) => {
+    // sets the new indexes of a layer 
     let light = lights.find(l => l.name == req.params['light'])
     let layerIdx: number = parseInt(req.params['layer'])
     if (light?.profile) light.modifyLayer(layerIdx, Object.assign({}, light.profile.layers[layerIdx], { pixelIndexes: req.body['indexes'] }))
@@ -53,6 +62,7 @@ api.post('/lights/:light/layers/:layer/indexes', async (req, res) => {
 })
 
 api.post('/lights/:light/layers/:layer/options', async (req, res) => {
+    // changes options for a layer
     let light = lights.find(l => l.name == req.params['light'])
     let layerIdx: number = parseInt(req.params['layer'])
     if (light?.profile) light.modifyLayer(layerIdx, Object.assign({}, light.profile.layers[layerIdx], { options: req.body['options'] }))
