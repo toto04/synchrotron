@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import socketio from 'socket.io-client'
 
+import ProfileSelector from './ProfileSelector'
 import poweron from '../logo/poweron.svg'
 import poweroff from '../logo/poweroff.svg'
 import { buf2hex, LightState } from '../util'
@@ -47,21 +48,19 @@ export default class LightControl extends Component<LightState, LightControlStat
     render = () => {
         return <div className="lightControl">
             <h1>{this.props.name}</h1>
-            <select
+            <ProfileSelector
+                lightName={this.props.name}
                 className="profileSelect"
-                ref={r => { if (r && this.props.selectedProfileIndex < 0) r.selectedIndex = 0 }}
-                value={this.props.selectedProfileIndex}
-                onChange={e => {
+                profiles={this.props.profiles}
+                selectedProfileIndex={this.props.selectedProfileIndex}
+                onProfileSelected={profile => {
                     fetch(`/lights/${this.props.name}/profile`, {
                         method: 'post',
                         headers: { 'Content-type': 'application/json' },
-                        body: JSON.stringify({ profile: e.target.value })
+                        body: JSON.stringify({ profile })
                     })
                 }}
-            >
-                {this.props.selectedProfileIndex < 0 ? <option disabled>nessun profilo selezionato</option> : undefined}
-                {this.props.profiles.map(p => <option value={p} key={`profile${this.props.name}-${p}`}>{p}</option>)}
-            </select>
+            />
             <a href={`/edit/${this.props.name}`}>modifica</a>
             <img
                 onClick={async () => {

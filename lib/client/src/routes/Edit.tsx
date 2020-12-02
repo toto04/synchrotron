@@ -7,6 +7,7 @@ import logo from '../logo/color.svg'
 import add from '../logo/add.svg'
 import { buf2hex, LayerConfig, PixelIndex, ProfileConfig } from '../util'
 import LightSimulation from '../components/LightSimulation'
+import ProfileSelector from '../components/ProfileSelector'
 import OptionSelector from '../components/OptionsSelector'
 import { layerTypes } from '../components/layers'
 
@@ -71,16 +72,19 @@ export default class Edit extends Component<EditProps, EditState> {
                         <img src={logo} alt="" />
                     </a>
                     <h1>{this.props.match?.params.lightname}</h1>
-                    <select
-                        ref={r => { if (r && !currentProfile) r.selectedIndex = 0 }}
-                        value={this.state.selectedProfileIndex}
-                        onChange={e => {
-                            this.setState({ selectedProfileIndex: e.target.selectedIndex, selectedLayer: undefined })
+                    <ProfileSelector
+                        lightName={this.name}
+                        profiles={this.state.profiles.map(p => p.name)}
+                        onProfileSelected={(profile, selectedProfileIndex) => {
+                            this.setState({ selectedProfileIndex, selectedLayer: undefined })
+                            fetch(`/lights/${this.name}/profile`, {
+                                method: 'post',
+                                headers: { 'Content-type': 'application/json' },
+                                body: JSON.stringify({ profile })
+                            })
                         }}
-                    >
-                        {this.state.selectedProfileIndex < 0 ? <option disabled>nessun profilo selezionato</option> : undefined}
-                        {this.state.profiles.map(p => <option value={p.name} key={'option' + p.name}>{p.name}</option>)}
-                    </select>
+                        selectedProfileIndex={this.state.selectedProfileIndex}
+                    />
                 </div>
                 <div className="separator" />
             </div>
@@ -137,7 +141,7 @@ export default class Edit extends Component<EditProps, EditState> {
                         <select onChange={e => {
                             this.setState({ selectedNewLayerType: e.target.value })
                         }}>
-                            {Object.keys(layerTypes).map(t => <option value={t} >{t}</option>)}
+                            {Object.keys(layerTypes).map(t => <option value={t} key={`newlayer${t}`} >{t}</option>)}
                         </select>
                     </div>
                     <p>{layerTypes[this.state.selectedNewLayerType ?? 'static'].description}</p>

@@ -2,6 +2,7 @@ import express from 'express'
 import socketio from 'socket.io'
 import { createServer } from 'http'
 import { lights, profileDB } from './init'
+import { ProfileConfig } from './lights'
 
 let api = express()
 let server = createServer(api)
@@ -37,13 +38,27 @@ api.post('/lights/:light/profile', async (req, res) => {
     res.send()
 })
 
-api.get('/lights/:light/profiles', async (req, res) => {
-    let light: string = req.params['light']
-    let profiles = await profileDB.find({ light })
-    let currLight = lights.find(l => l.name == light)
-    let profile = profiles.find(p => p.name == currLight?.profile?.name)
-    res.send({ profiles, selectedProfileIndex: profile ? profiles.indexOf(profile) : -1, dimensions: currLight?.pixels.map(s => s.length) })
-})
+api.route('/lights/:light/profiles')
+    .get(async (req, res) => {
+        let light: string = req.params['light']
+        let profiles = await profileDB.find({ light })
+        let currLight = lights.find(l => l.name == light)
+        let profile = profiles.find(p => p.name == currLight?.profile?.name)
+        res.send({ profiles, selectedProfileIndex: profile ? profiles.indexOf(profile) : -1, dimensions: currLight?.pixels.map(s => s.length) })
+    })
+    .post(async (req, res) => {
+        let light = lights.find(l => l.name == req.params['light'])
+        if (light) {
+            let newProfile: ProfileConfig = {
+                layers: [],
+                light: light?.name,
+                name: req.body['newProfileName']
+            }
+            light.setProfile(newProfile)
+            await profileDB.insert(newProfile)
+        }
+        res.send()
+    })
 
 api.post('/lights/:light/layers', async (req, res) => {
     // creates a new layer
