@@ -54,13 +54,11 @@ export default class ProfileSelector extends Component<ProfileSelectorProps, Pro
             <Modal
                 isOpen={this.state.creatingNewProfile}
                 style={{
-                    overlay: {
-                        backgroundColor: '#000C'
-                    }
+                    overlay: { backgroundColor: '#000C' }
                 }}
                 ariaHideApp={false}
                 shouldFocusAfterRender={false}
-                className="newLayerModal"
+                className="modal"
                 onRequestClose={() => this.setState({ creatingNewProfile: false })}
                 shouldCloseOnEsc
                 shouldCloseOnOverlayClick

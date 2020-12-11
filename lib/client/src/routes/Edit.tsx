@@ -6,6 +6,7 @@ import Modal from 'react-modal'
 import logo from '../logo/color.svg'
 import add from '../logo/add.svg'
 import { buf2hex, LayerConfig, PixelIndex, ProfileConfig } from '../util'
+import ConfirmModal from '../components/generics/ConfirmModal'
 import LightSimulation from '../components/LightSimulation'
 import ProfileSelector from '../components/ProfileSelector'
 import OptionSelector from '../components/OptionsSelector'
@@ -20,20 +21,22 @@ interface EditState {
     dimensions?: number[]
     creatingNewLayer: boolean
     selectedNewLayerType?: string
+    deletingProfile: boolean
 }
 export default class Edit extends Component<EditProps, EditState> {
     name: string = this.props.match?.params.lightname ?? '_'
     state: EditState = {
         profiles: [],
         selectedProfileIndex: -1,
-        creatingNewLayer: false
+        creatingNewLayer: false,
+        deletingProfile: false,
     }
     socket = socketio()
     clearSelection?: () => void
     resetSelection?: () => void
     selectFromLayer?: (layer: LayerConfig) => void
     componentDidMount = async () => {
-        if (this.name) this.socket.on(this.name, (data: ArrayBuffer) => {
+        this.socket.on(this.name, (data: ArrayBuffer) => {
             const values = buf2hex(data)
             let pixels = document.querySelectorAll<HTMLDivElement>('.pixelSimulation')
             for (let i = 0; i < pixels.length; i++) {
@@ -41,9 +44,20 @@ export default class Edit extends Component<EditProps, EditState> {
                 if (p) p.style.backgroundColor = '#' + values.substr(i * 6, 6)
             }
         })
+        this.reloadConfig()
+    }
+
+    reloadConfig = async () => {
         let res = await fetch(`/lights/${this.name}/profiles`)
         let { profiles, selectedProfileIndex, dimensions } = await res.json()
-        this.setState({ profiles, selectedProfileIndex, dimensions })
+        this.setState({
+            profiles,
+            selectedProfileIndex,
+            dimensions,
+            creatingNewLayer: false,
+            deletingProfile: false,
+            selectedLayer: undefined
+        })
     }
 
     renderLayerSelectors = () => this.state.profiles[this.state.selectedProfileIndex]?.layers.map(
@@ -92,8 +106,9 @@ export default class Edit extends Component<EditProps, EditState> {
                 className="layers"
                 onClick={e => {
                     // unselects layers on a click on an empty part of the container
+                    let element: any = e.target
                     if (this.clearSelection) this.clearSelection()
-                    if (e.target === e.currentTarget) this.setState({ selectedLayer: undefined })
+                    if (e.target === e.currentTarget || element.className === "newLayer") this.setState({ selectedLayer: undefined })
                 }}
             >
                 {this.renderLayerSelectors()}
@@ -101,6 +116,32 @@ export default class Edit extends Component<EditProps, EditState> {
                     <img src={add} alt="" onClick={() => {
                         this.setState({ creatingNewLayer: true })
                     }} />
+                </div> : undefined}
+                {currentProfile ? <div
+                    className="deleteButton"
+                    onClick={e => {
+                        if (e.target === e.currentTarget)
+                            this.setState({ deletingProfile: true })
+                    }}
+                >
+                    delete profile
+                    <ConfirmModal
+                        isOpen={this.state.deletingProfile}
+                        title="delete profile"
+                        message="do you want to delete this profile and all its layers? this action is not reversible"
+                        onClose={() => {
+                            console.log(this.state.deletingProfile)
+                            this.setState({ deletingProfile: false })
+                        }}
+                        onConfirm={async () => {
+                            await fetch(`/lights/${this.name}/profile/${currentProfile?.name}`, {
+                                method: 'delete',
+                                headers: { 'Content-type': 'application/json' }
+                            })
+                            this.reloadConfig()
+                        }}
+                        destructive
+                    />
                 </div> : undefined}
             </div>
             <div style={{ gridArea: 'simulation', overflow: 'auto' }}>
@@ -119,17 +160,23 @@ export default class Edit extends Component<EditProps, EditState> {
                 currentLayer={currentLayer}
                 changedIndexes={this.state.changedIndexes}
                 resetSelection={this.resetSelection}
+                resetChangedIndexes={() => this.setState({ changedIndexes: undefined })}
+                deleteLayer={async () => {
+                    await fetch(`/lights/${this.name}/layers/${this.state.selectedLayer}`, {
+                        method: 'delete',
+                        headers: { 'Content-type': 'application/json' }
+                    })
+                    this.reloadConfig()
+                }}
             />
             <Modal
                 isOpen={this.state.creatingNewLayer}
                 style={{
-                    overlay: {
-                        backgroundColor: '#000C'
-                    }
+                    overlay: { backgroundColor: '#000C' }
                 }}
                 ariaHideApp={false}
                 shouldFocusAfterRender={false}
-                className="newLayerModal"
+                className="modal"
                 onRequestClose={() => this.setState({ creatingNewLayer: false })}
                 shouldCloseOnEsc
                 shouldCloseOnOverlayClick
@@ -155,6 +202,7 @@ export default class Edit extends Component<EditProps, EditState> {
                         body: JSON.stringify({ config: newLayerConfig })
                     })
                     this.setState({
+                        selectedLayer: currentProfile!.layers.length - 1,
                         selectedNewLayerType: undefined,
                         creatingNewLayer: false
                     })

@@ -34,11 +34,16 @@ export default class ColorOption extends Option<Color, ColorOptionState> {
             <div className="colorSelection">
                 <span style={{ fontFamily: 'monospace', fontSize: '1.2em' }}>{hex(this.state.color).toUpperCase()}</span>
                 <div style={{
+                    backgroundImage: "linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)",
+                    backgroundSize: "20px 20px",
+                    backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px"
+                }}>
+                    <div style={{
                     width: 50,
                     height: 30,
                     backgroundColor: hex(this.state.color)
                 }} />
-
+                </div>
             </div>
             <SketchPicker
                 color={this.state.color}

@@ -42,4 +42,11 @@ export class DataStore<T> {
             else res(numreplaced)
         })
     })
+
+    remove = async (query: any): Promise<number> => new Promise((res, rej) => {
+        this.lamestore.remove(query, (err, numRemoved) => {
+            if (err) rej(err)
+            else res(numRemoved)
+        })
+    })
 }

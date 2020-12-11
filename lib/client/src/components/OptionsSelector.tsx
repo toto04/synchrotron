@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { LayerConfig, PixelIndex } from '../util'
 
 import { layerTypes } from './layers'
+import ConfirmModal from './generics/ConfirmModal'
 
 interface OptionsSelectorProps {
     name: string
@@ -9,14 +10,21 @@ interface OptionsSelectorProps {
     selectedLayer?: number
     changedIndexes?: PixelIndex[]
     resetSelection?: () => void
+    resetChangedIndexes: () => void
+    deleteLayer: () => void
 }
 
-export default class OptionsSelector extends Component<OptionsSelectorProps> {
+interface OptionsSelectorState {
+    deletingLayer: boolean
+}
+
+export default class OptionsSelector extends Component<OptionsSelectorProps, OptionsSelectorState> {
+    state = { deletingLayer: false }
     render = () => {
         let currentLayer = this.props.currentLayer
         return <div className="options">
             {currentLayer
-                ? <div style={{ width: '100%' }}>
+                ? <div className="selectedLayerOptions">
                     <div className="selectedIndexes">
                         {this.props.changedIndexes
                             ? <h3>{`You changed the pixels affected by this layer (${this.props.changedIndexes.length})`}</h3>
@@ -32,7 +40,7 @@ export default class OptionsSelector extends Component<OptionsSelectorProps> {
                                     headers: { 'Content-type': 'application/json' },
                                     body: JSON.stringify({ indexes: this.props.changedIndexes })
                                 })
-                                this.setState({ changedIndexes: undefined })
+                                this.props.resetChangedIndexes()
                             }}>apply</button>
                         </div>
                     </div>
@@ -44,6 +52,29 @@ export default class OptionsSelector extends Component<OptionsSelectorProps> {
                             body: JSON.stringify({ options })
                         })
                     })}
+                    <div
+                        className="deleteButton"
+                        onClick={e => {
+                            if (e.target === e.currentTarget)
+                                this.setState({ deletingLayer: true })
+                        }}
+                    >
+                        delete layer
+                        <ConfirmModal
+                            isOpen={this.state.deletingLayer}
+                            title="delete layer"
+                            message="do you want to delete this layer? this action is not reversible"
+                            onClose={() => {
+                                console.log(this.state.deletingLayer)
+                                this.setState({ deletingLayer: false })
+                            }}
+                            onConfirm={async () => {
+                                this.props.deleteLayer()
+                                this.setState({ deletingLayer: false })
+                            }}
+                            destructive
+                        />
+                    </div>
                 </div>
                 : <h2>select a layer to edit</h2>}
         </div>

@@ -33,8 +33,17 @@ api.get('/lights/', async (req, res) => {
 
 api.post('/lights/:light/profile', async (req, res) => {
     let name: string = req.body['profile']
-    let profile = await profileDB.findOne({ name })
-    if (profile) lights.find(l => l.name == req.params['light'])?.setProfile(profile)
+    let lightName: string = req.params['light']
+    let profile = await profileDB.findOne({ name, light: lightName })
+    if (profile) lights.find(l => l.name == lightName)?.setProfile(profile)
+    res.send()
+})
+
+api.delete('/lights/:light/profile/:profile', async (req, res) => {
+    let name: string = req.params['profile']
+    let lightName: string = req.params['light']
+    await profileDB.remove({ name, light: lightName })
+    lights.find(l => l.name == lightName)?.resetProfile()
     res.send()
 })
 
@@ -68,11 +77,18 @@ api.post('/lights/:light/layers', async (req, res) => {
     res.send()
 })
 
+api.delete('/lights/:light/layers/:layer', async (req, res) => {
+    let light = lights.find(l => l.name == req.params['light'])
+    let layerIdx: number = parseInt(req.params['layer'])
+    light?.deleteLayer(layerIdx)
+    res.send()
+})
+
 api.post('/lights/:light/layers/:layer/indexes', async (req, res) => {
     // sets the new indexes of a layer 
     let light = lights.find(l => l.name == req.params['light'])
     let layerIdx: number = parseInt(req.params['layer'])
-    if (light?.profile) light.modifyLayer(layerIdx, Object.assign({}, light.profile.layers[layerIdx], { pixelIndexes: req.body['indexes'] }))
+    if (light) light.modifyLayer(layerIdx, Object.assign({}, light.layers[layerIdx].toObject(), { pixelIndexes: req.body['indexes'] }))
     res.send()
 })
 
@@ -80,7 +96,7 @@ api.post('/lights/:light/layers/:layer/options', async (req, res) => {
     // changes options for a layer
     let light = lights.find(l => l.name == req.params['light'])
     let layerIdx: number = parseInt(req.params['layer'])
-    if (light?.profile) light.modifyLayer(layerIdx, Object.assign({}, light.profile.layers[layerIdx], { options: req.body['options'] }))
+    if (light) light.modifyLayer(layerIdx, Object.assign({}, light.layers[layerIdx].toObject(), { options: req.body['options'] }))
     res.send()
 })
 

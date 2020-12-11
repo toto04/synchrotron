@@ -49,6 +49,11 @@ export class Light extends EventEmitter {
         this.emit('profileChange', newProfile.name)
     }
 
+    resetProfile = () => {
+        this.profile = undefined
+        this.layers = []
+    }
+
     toBuffer() {
         if (!this.switchedOn) return Buffer.alloc(this.pixels.reduce((total, cur) => total + cur.length * 3, 0))
         let bufs: Buffer[] = []
@@ -95,5 +100,10 @@ export class Light extends EventEmitter {
         let newConfigs = this.layers.map(l => l.toObject())
         this.profile!.layers = newConfigs
         this.emit('layerChange', newConfigs)
+    }
+
+    deleteLayer = (index: number) => {
+        this.layers.splice(index, 1)
+        this.emit('layerChange', this.layers)
     }
 }

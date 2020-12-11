@@ -13,9 +13,8 @@ class PixelSimulation extends Component<PixelSimulationProps & TSelectableItemPr
             onDoubleClick={e => {
                 if (this.props.onDoubleClick) this.props.onDoubleClick(Object.assign({ index: this.props.index }, e))
             }}
-            className="pixelSimulation"
+            className={"pixelSimulation" + (this.props.isSelected ? " selected" : this.props.isSelecting ? " selecting" : '')}
             ref={this.props.selectableRef}
-            style={{ border: this.props.isSelected ? '1px solid #fffc' : this.props.isSelecting ? '1px solid #fff8' : '1px solid transparent' }}
         />
     }
 }
