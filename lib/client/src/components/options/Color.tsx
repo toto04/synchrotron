@@ -1,5 +1,5 @@
 import React from 'react'
-import { SketchPicker } from 'react-color'
+import { ChromePicker } from 'react-color'
 import Option, { OptionProps } from './Option'
 
 export interface Color {
@@ -45,7 +45,7 @@ export default class ColorOption extends Option<Color, ColorOptionState> {
                 }} />
                 </div>
             </div>
-            <SketchPicker
+            <ChromePicker
                 color={this.state.color}
                 onChangeComplete={v => {
                     let { r, g, b, a } = v.rgb

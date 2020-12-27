@@ -1,5 +1,5 @@
 import { Layer, LightConfig, Pixel, StripSet, LayerConfig, ProfileConfig } from './util'
-import { StaticColorLayer } from './functions'
+import { LinearGradientLayer, StaticColorLayer } from './functions'
 import { EventEmitter } from 'events';
 export * from './util'
 
@@ -16,6 +16,8 @@ export class Light extends EventEmitter {
         switch (config.type) {
             case 'static':
                 return new StaticColorLayer(config.options.color, config.pixelIndexes, pixelReference)
+            case 'linear gradient':
+                return new LinearGradientLayer(config.options.startColor, config.options.endColor, config.pixelIndexes, pixelReference)
             default:
                 // if this happens ima kms
                 return new Layer(config, pixelReference)
@@ -92,7 +94,7 @@ export class Light extends EventEmitter {
 
     addLayer = (config: LayerConfig) => {
         this.pushLayersInternal(config)
-        this.emit('layerChange', this.layers)
+        this.emit('layerChange', this.layers.map(l => l.toObject()))
     }
 
     modifyLayer = (index: number, config: LayerConfig) => {
@@ -104,6 +106,6 @@ export class Light extends EventEmitter {
 
     deleteLayer = (index: number) => {
         this.layers.splice(index, 1)
-        this.emit('layerChange', this.layers)
+        this.emit('layerChange', this.layers.map(l => l.toObject()))
     }
 }

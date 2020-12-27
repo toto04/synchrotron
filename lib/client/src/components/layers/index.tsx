@@ -1,6 +1,7 @@
 import React from 'react'
 import { LayerConfig } from '../../util'
 import { StaticOptions, StaticOptionsProps } from './Static'
+import { LinearGradientOptions, LinearGradientOptionsProps } from './LinearGradient'
 
 type LayersArray = {
     [key: string]: {
@@ -24,14 +25,21 @@ export let layerTypes: LayersArray = {
         },
         createOptionContainer: (defaultOptions: StaticOptionsProps, onChange: (v: StaticOptionsProps) => void) =>
             <StaticOptions defaultOptions={defaultOptions} onChange={onChange} />
-    }
-}
-
-export default function getOptionContainer(type: string, defaultOptions: any, onChange: (v: any) => void): JSX.Element {
-    switch (type) {
-        case 'static':
-            return <StaticOptions defaultOptions={defaultOptions} onChange={onChange} />
-        default:
-            return <div className="optionContainer" />
+    },
+    'linear gradient': {
+        description: "a linear gradient between two colors",
+        createDefaultConfig: () => {
+            let options: LinearGradientOptionsProps = {
+                startColor: { r: 255, g: 255, b: 255, a: 1 },
+                endColor: { r: 255, g: 255, b: 255, a: 1 }
+            }
+            return {
+                type: 'linear gradient',
+                options,
+                pixelIndexes: []
+            }
+        },
+        createOptionContainer: (defaultOptions: LinearGradientOptionsProps, onChange: (v: LinearGradientOptionsProps) => void) =>
+            <LinearGradientOptions defaultOptions={defaultOptions} onChange={onChange} />
     }
 }

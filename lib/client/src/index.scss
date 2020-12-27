@@ -247,6 +247,7 @@ button {
             display: flex;
             line-height: $layerSelectorHeight;
             transition: all 0.2s ease-in-out;
+            font-size: 12px;
 
             &::before {
                 content: "";
@@ -275,10 +276,14 @@ button {
 
             .index {
                 width: 60px;
+                min-width: 60px;
                 text-align: center;
                 font-size: 40px;
             }
             .type {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
                 color: #bbb;
             }
         }
@@ -375,6 +380,7 @@ button {
             padding: 24px;
             padding-bottom: 0;
             box-sizing: border-box;
+            overflow-y: auto;
             height: 100%;
             width: 100%;
         }
@@ -393,6 +399,7 @@ button {
         }
 
         .optionContainer {
+            position: relative;
             padding: 12px 0;
             width: 100%;
             border-top: 2px $bgcolor solid;
@@ -408,7 +415,8 @@ button {
                 width: 100%;
             }
 
-            .sketch-picker {
+            .chrome-picker {
+                position: relative;
                 margin: 10px auto;
             }
         }

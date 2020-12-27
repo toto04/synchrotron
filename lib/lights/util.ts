@@ -44,6 +44,48 @@ export type Color = RGB & {
     a: number
 }
 
+export type RGBLinear = Color
+export let sRGBCompanding = (linearColor: RGBLinear): Color => {
+    let res: Color = Object.assign({}, linearColor)
+
+    res.r = res.r <= 0.0031308 ? res.r * 12.92 : ((res.r ** (1 / 2.4)) * 1.055) - 0.055
+    res.g = res.g <= 0.0031308 ? res.g * 12.92 : ((res.g ** (1 / 2.4)) * 1.055) - 0.055
+    res.b = res.b <= 0.0031308 ? res.b * 12.92 : ((res.b ** (1 / 2.4)) * 1.055) - 0.055
+
+    res.r = Math.round(255 * res.r)
+    res.g = Math.round(255 * res.g)
+    res.b = Math.round(255 * res.b)
+
+    return res
+}
+
+export let inversesRGBCompanding = (color: Color): RGBLinear => {
+    let res: RGBLinear = Object.assign({}, color)
+
+    res.r /= 255
+    res.g /= 255
+    res.b /= 255
+
+    res.r = res.r <= 0.04045 ? res.r / 12.92 : ((res.r + 0.055) / 1.055) ** 2.4
+    res.g = res.g <= 0.04045 ? res.g / 12.92 : ((res.g + 0.055) / 1.055) ** 2.4
+    res.b = res.b <= 0.04045 ? res.b / 12.92 : ((res.b + 0.055) / 1.055) ** 2.4
+
+    return res
+}
+
+export let linearInterpolation = (v1: number, v2: number, mix: number) => {
+    return v1 * (1 - mix) + v2 * mix
+}
+
+export let linearColorInterpolation = (color1: RGBLinear, color2: RGBLinear, mix: number): RGBLinear => {
+    let res = Object.assign({}, color1)
+    res.a = linearInterpolation(color1.a, color2.a, mix)
+    res.r = linearInterpolation(color1.r, color2.r, mix)
+    res.g = linearInterpolation(color1.g, color2.g, mix)
+    res.b = linearInterpolation(color1.b, color2.b, mix)
+    return res
+}
+
 export type PixelIndex = [number, number]
 export type Strip = Pixel[]
 export type StripSet = Strip[]

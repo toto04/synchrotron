@@ -6,5 +6,6 @@ type LayerOptionSelectorProps<T, P> = {
 } & P
 
 export default class LayerOptionSelector<T = any, P = {}> extends Component<LayerOptionSelectorProps<T, P>, T> {
+    state = this.props.defaultOptions
     onChange = () => this.props.onChange(this.state)
 }

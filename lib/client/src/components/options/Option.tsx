@@ -1,7 +1,7 @@
 import { Component } from 'react'
 
 export interface OptionProps<T> {
-    name: string
+    name?: string
     defaultValue: T
     onChange: (value: T) => void
 }
