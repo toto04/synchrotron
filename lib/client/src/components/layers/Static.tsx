@@ -1,7 +1,7 @@
 import React from 'react'
 import LayerOptionSelector from './LayerOptionSelector'
-
-import ColorOption, { Color } from '../options/Color'
+import { Color } from 'types'
+import ColorOption from '../options/Color'
 
 export interface StaticOptionsProps {
     color: Color

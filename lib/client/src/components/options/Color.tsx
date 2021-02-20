@@ -1,13 +1,7 @@
 import React from 'react'
 import { ChromePicker } from 'react-color'
 import Option, { OptionProps } from './Option'
-
-export interface Color {
-    r: number
-    g: number
-    b: number
-    a: number
-}
+import { Color } from 'types'
 
 interface ColorOptionState {
     color: Color
@@ -39,10 +33,10 @@ export default class ColorOption extends Option<Color, ColorOptionState> {
                     backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px"
                 }}>
                     <div style={{
-                    width: 50,
-                    height: 30,
-                    backgroundColor: hex(this.state.color)
-                }} />
+                        width: 50,
+                        height: 30,
+                        backgroundColor: hex(this.state.color)
+                    }} />
                 </div>
             </div>
             <ChromePicker

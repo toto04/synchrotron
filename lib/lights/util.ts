@@ -1,8 +1,4 @@
-export interface RGB {
-    r: number
-    g: number
-    b: number
-}
+import { RGB, Color, RGBLinear, PixelIndex, StripSet, LayerConfig } from 'types'
 
 export class Pixel implements RGB {
     static off = () => {
@@ -40,11 +36,6 @@ export class Pixel implements RGB {
     }
 }
 
-export type Color = RGB & {
-    a: number
-}
-
-export type RGBLinear = Color
 export let sRGBCompanding = (linearColor: RGBLinear): Color => {
     let res: Color = Object.assign({}, linearColor)
 
@@ -84,28 +75,6 @@ export let linearColorInterpolation = (color1: RGBLinear, color2: RGBLinear, mix
     res.g = linearInterpolation(color1.g, color2.g, mix)
     res.b = linearInterpolation(color1.b, color2.b, mix)
     return res
-}
-
-export type PixelIndex = [number, number]
-export type Strip = Pixel[]
-export type StripSet = Strip[]
-
-export interface LayerConfig {
-    type: string,
-    options: any,
-    pixelIndexes: PixelIndex[]
-}
-
-export interface ProfileConfig {
-    light: string
-    name: string
-    layers: LayerConfig[]
-}
-
-export interface LightConfig {
-    name: string
-    strips: number[]
-    profile?: string
 }
 
 /**

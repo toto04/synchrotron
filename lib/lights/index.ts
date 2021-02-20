@@ -1,4 +1,5 @@
-import { Layer, LightConfig, Pixel, StripSet, LayerConfig, ProfileConfig } from './util'
+import { Layer, Pixel } from './util'
+import { LightConfig, StripSet, LayerConfig, ProfileConfig } from 'types'
 import { LinearGradientLayer, StaticColorLayer } from './functions'
 import { EventEmitter } from 'events';
 export * from './util'
@@ -17,7 +18,7 @@ export class Light extends EventEmitter {
             case 'static':
                 return new StaticColorLayer(config.options.color, config.pixelIndexes, pixelReference)
             case 'linear gradient':
-                return new LinearGradientLayer(config.options.startColor, config.options.endColor, config.pixelIndexes, pixelReference)
+                return new LinearGradientLayer(config.options.colors, config.options.speed, config.pixelIndexes, pixelReference)
             default:
                 // if this happens ima kms
                 return new Layer(config, pixelReference)
@@ -84,7 +85,7 @@ export class Light extends EventEmitter {
             if (this.switchedOn) this.advance()
         }, gap)
     }
-    stop = () => this.interval ?? clearInterval(this.interval)
+    stop = () => this.interval && clearInterval(this.interval)
 
     private pushLayersInternal = (...layerConfigs: LayerConfig[]) => {
         for (const layerConfig of layerConfigs) {

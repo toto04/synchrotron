@@ -1,5 +1,5 @@
 import React from 'react'
-import { LayerConfig } from '../../util'
+import { LayerConfig } from 'types'
 import { StaticOptions, StaticOptionsProps } from './Static'
 import { LinearGradientOptions, LinearGradientOptionsProps } from './LinearGradient'
 
@@ -30,8 +30,8 @@ export let layerTypes: LayersArray = {
         description: "a linear gradient between two colors",
         createDefaultConfig: () => {
             let options: LinearGradientOptionsProps = {
-                startColor: { r: 255, g: 255, b: 255, a: 1 },
-                endColor: { r: 255, g: 255, b: 255, a: 1 }
+                colors: [{ color: { r: 255, g: 255, b: 255, a: 1 }, point: 0 }],
+                speed: 0
             }
             return {
                 type: 'linear gradient',

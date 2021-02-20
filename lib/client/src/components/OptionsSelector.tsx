@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { LayerConfig, PixelIndex } from '../util'
+import { LayerConfig, PixelIndex } from 'types'
 
 import { layerTypes } from './layers'
 import ConfirmModal from './generics/ConfirmModal'

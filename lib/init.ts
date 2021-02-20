@@ -1,7 +1,8 @@
 import config from 'config'
 import { createSocket } from 'dgram'
 import { DataStore } from './DataStore'
-import { Light, LightConfig, ProfileConfig } from './lights'
+import { Light } from './lights'
+import { LightConfig, ProfileConfig } from 'types'
 
 export let lights: Light[] = []
 export let lightDB = new DataStore<LightConfig>('lights.db')

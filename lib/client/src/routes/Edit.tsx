@@ -5,7 +5,8 @@ import Modal from 'react-modal'
 
 import logo from '../logo/color.svg'
 import add from '../logo/add.svg'
-import { buf2hex, LayerConfig, PixelIndex, ProfileConfig } from '../util'
+import { buf2hex } from '../util'
+import { LayerConfig, PixelIndex, ProfileConfig } from 'types'
 import ConfirmModal from '../components/generics/ConfirmModal'
 import LightSimulation from '../components/LightSimulation'
 import ProfileSelector from '../components/ProfileSelector'
@@ -31,7 +32,7 @@ export default class Edit extends Component<EditProps, EditState> {
         creatingNewLayer: false,
         deletingProfile: false,
     }
-    socket = socketio()
+    socket = socketio.connect(window.location.origin)
     clearSelection?: () => void
     resetSelection?: () => void
     selectFromLayer?: (layer: LayerConfig) => void
@@ -113,7 +114,7 @@ export default class Edit extends Component<EditProps, EditState> {
             >
                 {this.renderLayerSelectors()}
                 {currentProfile ? <div className="newLayer">
-                    <img src={add} alt="" onClick={() => {
+                    <img className="addImage" src={add} alt="" onClick={() => {
                         this.setState({ creatingNewLayer: true })
                     }} />
                 </div> : undefined}

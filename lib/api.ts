@@ -2,7 +2,7 @@ import express from 'express'
 import socketio from 'socket.io'
 import { createServer } from 'http'
 import { lights, profileDB } from './init'
-import { ProfileConfig } from './lights'
+import { ProfileConfig } from 'types'
 
 let api = express()
 let server = createServer(api)

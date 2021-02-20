@@ -13,6 +13,7 @@ export class DataStore<T> {
             filename: path.join(require.main?.path ?? __dirname, filename),
             autoload: true
         })
+        this.lamestore.persistence.setAutocompactionInterval(60 * 1000)
     }
 
     find = async (query: any): Promise<T[]> => new Promise((res, rej) => {

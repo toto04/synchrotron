@@ -203,6 +203,20 @@ button {
         color: #b00;
     }
 
+    .addImage {
+        user-select: none;
+        transition: 0.2s all ease-in-out;
+        cursor: pointer;
+        border-radius: 50%;
+        background-color: $bgcolor;
+        width: 70px;
+        @include shadow(0px, 5px, 10px, 5px, #0001);
+        &:hover {
+            background-color: #666;
+            @include shadow(0px, 5px, 10px, 5px, #0002);
+        }
+    }
+
     .header {
         display: flex;
         height: 78px;
@@ -292,19 +306,6 @@ button {
             padding: 18px;
             display: flex;
             justify-content: center;
-            img {
-                user-select: none;
-                transition: 0.2s all ease-in-out;
-                cursor: pointer;
-                border-radius: 50%;
-                background-color: $bgcolor;
-                width: 70px;
-                @include shadow(0px, 5px, 10px, 5px, #0001);
-                &:hover {
-                    background-color: #666;
-                    @include shadow(0px, 5px, 10px, 5px, #0002);
-                }
-            }
         }
     }
 
@@ -403,6 +404,99 @@ button {
             padding: 12px 0;
             width: 100%;
             border-top: 2px $bgcolor solid;
+            .gradientPreview {
+                position: relative;
+                width: 95%;
+                height: 16px;
+                margin: 12px auto;
+                // background-size: 50%;
+                .colorPointPreview {
+                    user-select: none;
+                    cursor: pointer;
+                    position: absolute;
+                    top: -2px;
+                    height: 100%;
+                    width: 6px;
+                    border: 2px solid white;
+                    border-radius: 4px;
+                    &.selected::before {
+                        content: "";
+                        position: absolute;
+                        background-color: white;
+                        border: 1px solid black;
+                        border-radius: 50%;
+                        top: -12px;
+                        width: 4px;
+                        height: 4px;
+                        bottom: 4px;
+                        @include shadow(0px, 0px, 2px, 2px, rgba(0, 0, 0, 0.1));
+                    }
+                    // &.selected {
+                    //     // @include shadow(0px, 0px, 3px, 5px, rgba(0,0,0,.1))
+                    //     top: -3px;
+                    //     z-index: 1;
+                    //     width: 4px;
+                    //     border-width: 3px;
+                    // }
+                }
+            }
+            .pointController {
+                display: flex;
+                align-items: center;
+                height: 32px;
+                margin-bottom: 8px;
+                input {
+                    margin-left: 4px;
+                    width: 50px;
+                }
+                img {
+                    background-color: $bgcolor;
+                    transition: 0.2s all ease-in-out;
+                    cursor: pointer;
+                    height: 100%;
+                    padding: 4px;
+                    box-sizing: border-box;
+                    &.disabled {
+                        cursor: not-allowed;
+                    }
+                    &:first-of-type {
+                        margin-left: auto;
+                        border-radius: 50% 0 0 50%;
+                    }
+                    &:last-of-type {
+                        margin-left: 1px;
+                        border-radius: 0 50% 50% 0;
+                    }
+                    &:hover:not(.disabled) {
+                        background-color: #666;
+                        z-index: 1;
+                        @include shadow(0px, 5px, 10px, 5px, #0002);
+                    }
+                }
+            }
+            .slider {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 4px;
+                input {
+                    width: 150px;
+                }
+            }
+            .optionCollection {
+                position: relative;
+                padding-left: 12px;
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: 0px;
+                    width: 4px;
+                    top: 0px;
+                    bottom: 0px;
+                    border-radius: 2px;
+                    background-color: $bgcolor;
+                }
+            }
             .optionName {
                 font-family: "Montserrat";
                 font-size: 1.5em;

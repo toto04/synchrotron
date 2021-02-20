@@ -9,17 +9,3 @@ export interface LightState {
     profiles: string[]
     pixels: number[]
 }
-
-export type PixelIndex = [number, number]
-
-export interface LayerConfig {
-    type: string,
-    options: any,
-    pixelIndexes: PixelIndex[]
-}
-
-export interface ProfileConfig {
-    light: string
-    name: string
-    layers: LayerConfig[]
-}

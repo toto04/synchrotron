@@ -5,6 +5,7 @@
   "repository": "https://github.com/toto04/synchrotron.git",
   "scripts": {
     "start": "ts-node index.ts",
+    "updatetypes": "yarn upgrade types && cd lib/client && yarn upgrade types",
     "dev": "nodemon -e ts --exec ts-node index.ts"
   },
   "license": "MIT",
@@ -19,6 +20,7 @@
     "nedb": "^1.8.0",
     "socket.io": "^2.3.0",
     "ts-node": "^9.0.0",
+    "types": "./lib/types/",
     "typescript": "^4.0.3"
   }
 }

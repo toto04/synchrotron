@@ -1,25 +1,32 @@
 import React from 'react'
 import LayerOptionSelector from './LayerOptionSelector'
-
-import ColorOption, { Color } from '../options/Color'
-import ColorPoint from '../options/ColorPoint'
+import { ColorArray } from 'types'
+import ColorArrayOption from '../options/ColorArray'
+import SliderOption from '../options/Slider'
 
 export interface LinearGradientOptionsProps {
-    startColor: Color,
-    endColor: Color
+    colors: ColorArray,
+    speed: number
 }
 export class LinearGradientOptions extends LayerOptionSelector<LinearGradientOptionsProps> {
     render = () => {
         return <div className="optionContainer">
-            <ColorOption
-                name="start color:"
-                defaultValue={this.props.defaultOptions.startColor}
-                onChange={startColor => this.setState({ startColor }, () => this.onChange())}
+            <ColorArrayOption
+                defaultValue={{ colors: this.props.defaultOptions.colors }}
+                name="Linear gradient:"
+                onChange={v => {
+                    this.setState({ colors: v.colors }, () => this.onChange())
+                }}
             />
-            <ColorOption
-                name="end color:"
-                defaultValue={this.props.defaultOptions.endColor}
-                onChange={endColor => this.setState({ endColor }, () => this.onChange())}
+            <SliderOption
+                defaultValue={this.props.defaultOptions.speed}
+                name="speed:"
+                min={-10}
+                max={+10}
+                step={0.1}
+                onChange={v => {
+                    this.setState({ speed: v }, () => this.onChange())
+                }}
             />
         </div>
     }

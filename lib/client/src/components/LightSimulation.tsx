@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { SelectableGroup, createSelectable, TSelectableItemProps } from 'react-selectable-fast'
-import { PixelIndex } from '../util'
+import { PixelIndex } from 'types'
 
 interface PixelSimulationProps {
     index: PixelIndex

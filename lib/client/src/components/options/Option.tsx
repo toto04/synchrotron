@@ -1,9 +1,9 @@
 import { Component } from 'react'
 
-export interface OptionProps<T> {
+export type OptionProps<T, P = {}> = {
     name?: string
     defaultValue: T
     onChange: (value: T) => void
-}
+} & P
 
-export default class Option<T, S = {}> extends Component<OptionProps<T>, S> { }
+export default class Option<T, S = T, P = {}> extends Component<OptionProps<T, P>, S> { }
