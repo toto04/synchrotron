@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
 import { RouteChildrenProps } from 'react-router-dom'
-import socketio from 'socket.io-client'
 import Modal from 'react-modal'
 
 import logo from '../logo/color.svg'
 import add from '../logo/add.svg'
-import { buf2hex } from '../util'
+import { blob2hex } from '../util'
 import { LayerConfig, PixelIndex, ProfileConfig } from 'types'
 import ConfirmModal from '../components/generics/ConfirmModal'
 import LightSimulation from '../components/LightSimulation'
@@ -32,19 +31,20 @@ export default class Edit extends Component<EditProps, EditState> {
         creatingNewLayer: false,
         deletingProfile: false,
     }
-    socket = socketio.connect(window.location.origin)
+    ws = new WebSocket(process.env.NODE_ENV === 'production' ? `ws://${window.location.host}` : 'ws://localhost:2078', this.name)
     clearSelection?: () => void
     resetSelection?: () => void
     selectFromLayer?: (layer: LayerConfig) => void
     componentDidMount = async () => {
-        this.socket.on(this.name, (data: ArrayBuffer) => {
-            const values = buf2hex(data)
+        this.ws.addEventListener('message', async ev => {
+            const values = await blob2hex(ev.data)
             let pixels = document.querySelectorAll<HTMLDivElement>('.pixelSimulation')
             for (let i = 0; i < pixels.length; i++) {
                 let p = pixels[i]
                 if (p) p.style.backgroundColor = '#' + values.substr(i * 6, 6)
             }
         })
+
         this.reloadConfig()
     }
 

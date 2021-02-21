@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
-import socketio from 'socket.io-client'
 
 import ProfileSelector from './ProfileSelector'
 import poweron from '../logo/poweron.svg'
 import poweroff from '../logo/poweroff.svg'
-import { buf2hex, LightState } from '../util'
+import { blob2hex, LightState } from '../util'
 
 interface LightControlState {
     switchedOn: boolean
@@ -13,11 +12,11 @@ interface LightControlState {
 export default class LightControl extends Component<LightState, LightControlState> {
     state: LightControlState = { switchedOn: false }
     pixels: HTMLDivElement[][] = []
-    socket = socketio()
+    ws = new WebSocket(process.env.NODE_ENV === 'production' ? `ws://${window.location.host}` : 'ws://localhost:2078', this.props.name)
     componentDidMount = () => {
         this.setState({ switchedOn: this.props.switchedOn })
-        this.socket.on(this.props.name, (data: ArrayBuffer) => {
-            const values = buf2hex(data)
+        this.ws.addEventListener('message', async ev => {
+            const values = await blob2hex(ev.data)
             for (let i = 0; i < this.props.pixels.length; i++) {
                 const pixels = this.props.pixels[i]
                 for (let j = 0; j < pixels; j++) if (this.pixels.length) {
@@ -61,7 +60,7 @@ export default class LightControl extends Component<LightState, LightControlStat
                     })
                 }}
             />
-            <a href={`/edit/${this.props.name}`}>modifica</a>
+            <a href={`/edit/${this.props.name}`}>edit</a>
             <img
                 onClick={async () => {
                     let switchedOn = !this.state.switchedOn

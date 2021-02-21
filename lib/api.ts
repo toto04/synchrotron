@@ -1,19 +1,29 @@
 import express from 'express'
-import socketio from 'socket.io'
 import { createServer } from 'http'
+import WebSocket from 'ws'
 import { lights, profileDB } from './init'
 import { ProfileConfig } from 'types'
 
 let api = express()
 let server = createServer(api)
-let io = socketio(server)
+const wss = new WebSocket.Server({ server })
+let wsClients: Map<String, Set<WebSocket>> = new Map()
+wss.on('connection', (ws) => {
+    wsClients.get(ws.protocol)?.add(ws)
+    ws.on('close', () => wsClients.get(ws.protocol)?.delete(ws))
+})
 
 export function initializeApi(port: number) {
     server.listen(port)
-    for (const light of lights) light.on('advance', buffer => {
-        io.emit(light.name, buffer)
-    })
-    console.log("[Synchrotron API] Server initialized!")
+    for (const light of lights) {
+        wsClients.set(light.name, new Set())
+        light.on('advance', buffer => {
+            wsClients.get(light.name)?.forEach(ws => {
+                ws.send(buffer)
+            })
+        })
+    }
+    console.log(`[Synchrotron API] Server initialized on port ${port}!`)
 }
 
 api.use(express.json())
