@@ -401,9 +401,12 @@ button {
 
         .optionContainer {
             position: relative;
-            padding: 12px 0;
+            padding-bottom: 12px;
             width: 100%;
             border-top: 2px $bgcolor solid;
+            &>div {
+                margin-top: 12px;
+            }
             .gradientPreview {
                 position: relative;
                 width: 95%;

@@ -1,6 +1,6 @@
 import { Layer, Pixel } from './util'
 import { LightConfig, StripSet, LayerConfig, ProfileConfig } from 'types'
-import { LinearGradientLayer, StaticColorLayer } from './functions'
+import { LinearGradientLayer, NoiseLayer, StaticColorLayer } from './functions'
 import { EventEmitter } from 'events';
 export * from './util'
 
@@ -19,6 +19,8 @@ export class Light extends EventEmitter {
                 return new StaticColorLayer(config.options.color, config.pixelIndexes, pixelReference)
             case 'linear gradient':
                 return new LinearGradientLayer(config.options.colors, config.options.speed, config.pixelIndexes, pixelReference)
+            case 'noise':
+                return new NoiseLayer(config.options.color, config.options.speed, config.options.width, config.options.depth, config.pixelIndexes, pixelReference)
             default:
                 // if this happens ima kms
                 return new Layer(config, pixelReference)
