@@ -21,6 +21,15 @@ export let getApi = (lights: Light[]) => {
         })))
     })
 
+    api.get('/lights/:light', async (req, res) => {
+        let lightName: string = req.params['light']
+        let light = lights.find(l => l.name === lightName)
+        res.send({
+            name: lightName,
+            switchedOn: light?.switchedOn
+        })
+    })
+
     api.post('/lights/:light/profile', async (req, res) => {
         let name: string = req.body['profile']
         let lightName: string = req.params['light']
@@ -95,7 +104,7 @@ export let getApi = (lights: Light[]) => {
         res.send()
     })
 
-    let staticPath = path.join(__dirname, 'client/build')
+    let staticPath = path.join(__dirname, '../client/build')
     api.use(express.static(staticPath))
     api.use((req, res) => {
         res.sendFile(path.join(staticPath, 'index.html'))
